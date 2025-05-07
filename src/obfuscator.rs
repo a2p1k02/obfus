@@ -1,5 +1,7 @@
+use rand::distr::Distribution;
 use std::collections::HashMap;
 use std::io::{Read, Write};
+use rand::distr::Uniform;
 use rand::Rng;
 use regex::Regex;
 
@@ -14,8 +16,10 @@ fn generate_random_name() -> String {
     random_name.push(ascii_chars.chars().collect::<Vec<char>>()
         [rng.random_range(0..ascii_chars.len())]);
 
+    let between = Uniform::try_from(0..all_chars.len()).unwrap();
+    
     for _ in 1..length {
-        random_name.push(all_chars[rng.random_range(0..all_chars.len())]);
+        random_name.push(all_chars[between.sample(&mut rng)]);
     }
 
     random_name.iter().collect()
@@ -133,7 +137,6 @@ ___var_{} += (T)0x{};
 pub fn run(args: Vec<String>) {
     let input_file = std::fs::File::open(args[1].to_string());
     let mut input_file_contents = String::new();
-
     input_file.unwrap().read_to_string(&mut input_file_contents).unwrap();
 
     let output_file_contents = obfuscate_cpp_code(input_file_contents.as_str());
